@@ -1,11 +1,14 @@
 # Folders
-node_modules/
-dist/
-.vscode/
-build/
+node_modules
+dist
+.vscode
+build
 
 # Test coverages
 coverage/
 
 # Error logs
 logs/
+
+# Files
+.env
