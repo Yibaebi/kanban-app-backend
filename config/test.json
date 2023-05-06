@@ -1,0 +1,4 @@
+{
+  "DB_HOST": "mongodb://localhost/kanban_app_test",
+  "JWT_PRIVATE_KEY": "1234"
+}
