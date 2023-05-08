@@ -19,6 +19,7 @@
   "dependencies": {
     "@types/config": "^3.3.0",
     "@types/express": "^4.17.17",
+    "@types/joi": "^17.2.3",
     "@types/mongoose": "^5.11.97",
     "config": "^3.3.9",
     "dotenv": "^16.0.3",

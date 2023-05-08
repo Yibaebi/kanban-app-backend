@@ -1,4 +1,7 @@
-import { startupConfig, startupDb } from './start'
+import { startupConfig, startupDb, startupValidation } from './start'
+
+// Setup validation
+startupValidation()
 
 // Setup application config
 startupConfig()

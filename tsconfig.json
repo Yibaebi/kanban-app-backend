@@ -9,8 +9,9 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./src"
   },
-  "include": ["src", "package.json"],
+  "include": ["src", "package.json", "config"],
   "exclude": ["src/**/*.test.ts"]
 }
