@@ -1,1 +1,1 @@
-export * from './res-code-map'
+export * from './ResCodeMap.constant'

@@ -1,1 +1,2 @@
-export * from './joi-object-id'
+export * from './JoiObjectId.utils'
+export * from './Logger.utils'

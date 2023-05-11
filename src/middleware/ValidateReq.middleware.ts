@@ -1,12 +1,14 @@
 import Joi from 'joi'
 import { NextFunction, Request, Response } from 'express'
-
-import { RES_CODE_MAP } from '../../constants'
+import { RES_CODE_MAP } from '@constants'
 
 /**
  * @type {(reqBody: unknown) => Joi.ValidationResult<string>}
  */
-export type ReqValidatorFn = (reqBody: unknown) => Joi.ValidationResult
+export type ReqValidatorFn<T> = (
+  reqBody: T,
+  required?: boolean
+) => Joi.ValidationResult<T>
 
 /**
  * Validate the request body with a custom error
@@ -14,7 +16,7 @@ export type ReqValidatorFn = (reqBody: unknown) => Joi.ValidationResult
  * @param {ReqValidatorFn} validatorFn
  */
 const validateReq =
-  (validatorFn: ReqValidatorFn) =>
+  <T>(validatorFn: ReqValidatorFn<T>) =>
   (req: Request, res: Response, next: NextFunction) => {
     const { error } = validatorFn(req.body)
 
