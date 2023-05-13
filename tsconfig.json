@@ -3,13 +3,25 @@
     "target": "es2021",
     "module": "commonjs",
     "resolveJsonModule": true /* in case you are importing JSON files */,
-    "outDir": "build",
+    "outDir": "dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true,
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "@start": ["start/index"],
+      "@config": ["config/index"],
+      "@middleware": ["middleware/index"],
+      "@models": ["models/index"],
+      "@controllers": ["controllers/index"],
+      "@constants": ["constants/index"],
+      "@routes": ["routes/index"],
+      "@utils": ["utils/index"],
+      "@validators": ["validators/index"],
+      "@root/types": ["types/index"]
+    }
   },
   "include": ["src", "package.json", "config"],
   "exclude": ["src/**/*.test.ts"]
