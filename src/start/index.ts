@@ -1,2 +1,3 @@
-export * from './db'
-export * from './config'
+export * from './Config.start'
+export * from './Routes.start'
+export * from './DB.start'
