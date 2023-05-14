@@ -53,4 +53,17 @@ const validateCreateTask = (reqBody: ICreateTask, required = true) => {
   return schema.validate(reqBody)
 }
 
-export { validateCreateBoard, validateCreateTask }
+// Validator fn updating columns
+const validateUpdateBoardColumns = (reqBody: Partial<ICreateBoard>) => {
+  const schema = Joi.object({
+    name: Joi.string().messages({
+      'string.empty': 'name is not allowed to be empty.',
+      'any.required': 'name is a required field.'
+    }),
+    columns: Joi.array<string>().min(1).max(10)
+  })
+
+  return schema.validate(reqBody)
+}
+
+export { validateCreateBoard, validateCreateTask, validateUpdateBoardColumns }

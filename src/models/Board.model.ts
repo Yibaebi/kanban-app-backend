@@ -1,10 +1,13 @@
-import { Schema, model } from 'mongoose'
+import _ from 'lodash'
+import { Schema, Types, model } from 'mongoose'
 
 import {
   BoardMethodContext,
   BoardModel,
   IBoard,
-  IBoardMethods
+  IBoardMethods,
+  IBoardTask,
+  ICreateTask
 } from '@root/types'
 
 // Board Schema
@@ -40,9 +43,51 @@ const boardSchema = new Schema<IBoard, BoardModel, IBoardMethods>({
   createdAt: { type: Date, default: Date.now() }
 })
 
-boardSchema.method('getColumns', function getColumns(this: BoardMethodContext) {
+// Retrieves columns of this board
+boardSchema.method('getColumns', function (this: BoardMethodContext) {
   return this.columns
 })
+
+// Retrieves a columnize board
+boardSchema.method('columnizeBoard', function (this: BoardMethodContext) {
+  const boardColumnTasksMap: Record<string, IBoardTask[]> = {}
+
+  for (const task of this.tasks) {
+    boardColumnTasksMap[task.status] = boardColumnTasksMap[task.status] || []
+    boardColumnTasksMap[task.status].push(task)
+  }
+
+  const value = {
+    ..._.pick(this, ['_id', 'name', 'createdAt']),
+    columns: boardColumnTasksMap
+  }
+
+  return value
+})
+
+// Instance method to add a task
+boardSchema.method(
+  'addTask',
+  function (this: BoardMethodContext, task: ICreateTask) {
+    const reqSubTasks = _.uniq(task.subtasks)
+
+    // Create subtasks with statuses
+    const subtasks = reqSubTasks.map((subtask) => ({
+      title: subtask,
+      isCompleted: false
+    }))
+
+    const newTask = {
+      id: new Types.ObjectId(),
+      ...task,
+      subtasks
+    } as IBoardTask
+
+    this.tasks.push(newTask)
+
+    return newTask
+  }
+)
 
 // Board Model
 const Board = model<IBoard, BoardModel>('Board', boardSchema)
