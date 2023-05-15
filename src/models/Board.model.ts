@@ -2,11 +2,12 @@ import _ from 'lodash'
 import { Schema, Types, model } from 'mongoose'
 
 import {
-  BoardMethodContext,
+  BoardDocumentInstance,
   BoardModel,
   IBoard,
   IBoardMethods,
   IBoardTask,
+  ICreateBoard,
   ICreateTask
 } from '@root/types'
 
@@ -43,32 +44,49 @@ const boardSchema = new Schema<IBoard, BoardModel, IBoardMethods>({
   createdAt: { type: Date, default: Date.now() }
 })
 
-// Retrieves columns of this board
-boardSchema.method('getColumns', function (this: BoardMethodContext) {
-  return this.columns
-})
-
-// Retrieves a columnize board
-boardSchema.method('columnizeBoard', function (this: BoardMethodContext) {
+// Columnizes a board
+boardSchema.method('columnizeBoard', function (this: BoardDocumentInstance) {
   const boardColumnTasksMap: Record<string, IBoardTask[]> = {}
 
+  for (const column of this.columns) {
+    boardColumnTasksMap[column] = []
+  }
+
   for (const task of this.tasks) {
-    boardColumnTasksMap[task.status] = boardColumnTasksMap[task.status] || []
     boardColumnTasksMap[task.status].push(task)
   }
 
-  const value = {
-    ..._.pick(this, ['_id', 'name', 'createdAt']),
+  const boardProps = _.pick(this, ['_id', 'name', 'createdAt'])
+  const board = {
+    ...boardProps,
     columns: boardColumnTasksMap
   }
 
-  return value
+  return board
 })
+
+// Edits a board
+boardSchema.method(
+  'editBoard',
+  function (this: BoardDocumentInstance, editProps: Partial<ICreateBoard>) {
+    const newBoardColumns = editProps?.columns || []
+
+    const existingColumns = this.columns
+    const columnsToRemove = _.difference(existingColumns, newBoardColumns)
+
+    // Update board values
+    this.name = editProps.name || this.name
+    this.columns = newBoardColumns
+    this.tasks = this.tasks.filter(
+      (task) => !columnsToRemove.includes(task.status)
+    )
+  }
+)
 
 // Instance method to add a task
 boardSchema.method(
   'addTask',
-  function (this: BoardMethodContext, task: ICreateTask) {
+  function (this: BoardDocumentInstance, task: ICreateTask) {
     const reqSubTasks = _.uniq(task.subtasks)
 
     // Create subtasks with statuses

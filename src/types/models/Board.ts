@@ -1,17 +1,10 @@
 import { Document, Model, Types } from 'mongoose'
+import { IBoardTask, ICreateTask } from './Task'
 
 // Create board properties
 export interface ICreateBoard {
   name: string
   columns: string[]
-}
-
-// Create Task properties
-export interface ICreateTask {
-  title: string
-  description?: string
-  subtasks: string[]
-  status: string
 }
 
 // Create board properties
@@ -32,31 +25,26 @@ export interface IBoard extends Document {
   createdAt: Date
 }
 
-export interface IBoardTask {
-  id: Types.ObjectId
-  title: string
-  description: string
-  subtasks: IBoardSubTask[]
-  status: string
-  createdAt: number
-}
-
-export interface IBoardSubTask {
-  title: string
-  isCompleted: boolean
+interface IColumnizedBoard {
+  _id: Types.ObjectId
+  columns: Record<string, IBoardTask[]>
+  name: string
+  createdAt: Date
 }
 
 // Instance Methods
 export interface IBoardMethods {
-  getColumns(): Promise<string[]>
+  addTask(task: ICreateTask): IBoardTask
+  columnizeBoard(): IColumnizedBoard
+  editBoard(editValues: Partial<ICreateBoard>): void
 }
 
 // Static methods
 export interface BoardModel extends Model<IBoard, object, IBoardMethods> {
-  createBoard(board: ICreateBoard): Promise<BoardMethodContext>
+  createBoard(board: ICreateBoard): Promise<BoardDocumentInstance>
 }
 
-export type BoardMethodContext = Document<unknown, object, IBoard> &
+export type BoardDocumentInstance = Document<unknown, object, IBoard> &
   Omit<
     IBoard & {
       _id: Types.ObjectId
