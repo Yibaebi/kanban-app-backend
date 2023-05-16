@@ -23,6 +23,5 @@
       "@root/types": ["types/index"]
     }
   },
-  "include": ["src", "package.json", "config"],
-  "exclude": ["src/**/*.test.ts"]
+  "include": ["src", "package.json", "config"]
 }
