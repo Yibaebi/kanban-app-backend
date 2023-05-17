@@ -1,6 +1,5 @@
 import Joi from 'joi'
-
-import { ICreateBoard } from '@root/types'
+import { ICreateBoard, IEditBoard } from '@root/types'
 
 // Validator fn for creating a board
 const validateCreateBoard = (reqBody: ICreateBoard, required = true) => {
@@ -22,13 +21,13 @@ const validateCreateBoard = (reqBody: ICreateBoard, required = true) => {
 }
 
 // Validator fn updating a board
-const validateUpdateBoard = (reqBody: Partial<ICreateBoard>) => {
+const validateUpdateBoard = (reqBody: IEditBoard) => {
   const schema = Joi.object({
     name: Joi.string().messages({
       'string.empty': 'name is not allowed to be empty.',
       'any.required': 'name is a required field.'
     }),
-    columns: Joi.array<string>().min(1).max(10)
+    columns: Joi.array<string>().min(0).max(10)
   })
 
   return schema.validate(reqBody)
