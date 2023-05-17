@@ -10,7 +10,7 @@ const validateObjectID = (req: Request, res: Response, next: NextFunction) => {
 
   if (!isValidID) {
     return res
-      .status(RES_CODE_MAP.NOT_FOUND)
+      .status(RES_CODE_MAP.BAD_REQUEST)
       .send({ data: null, message: 'Invalid request ID' })
   }
 
