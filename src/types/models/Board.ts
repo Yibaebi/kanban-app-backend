@@ -1,5 +1,5 @@
 import { Document, Model, Types } from 'mongoose'
-import { IBoardTask, ICreateTask } from './Task'
+import { ITask, ICreateTask } from './Task'
 
 // Create board properties
 export interface ICreateBoard {
@@ -14,41 +14,45 @@ export interface ICreateBoard {
 }
 
 // Edit board properties
-export type IEditBoard = ICreateBoard
+export type IEditBoard = Partial<ICreateBoard>
 
 // Board Properties
 export interface IBoard extends Document {
   _id: Types.ObjectId
   name: string
   columns: string[]
-  tasks: IBoardTask[]
+  tasks: ITask[]
   createdAt: Date
 }
 
 interface IColumnizedBoard {
   _id: Types.ObjectId
-  columns: Record<string, IBoardTask[]>
+  columns: Record<string, ITask[]>
   name: string
   createdAt: Date
 }
 
 // Instance Methods
 export interface IBoardMethods {
-  addTask(task: ICreateTask): IBoardTask
+  addTask(task: ICreateTask): ITask
   columnizeBoard(): IColumnizedBoard
-  editBoard(editValues: Partial<ICreateBoard>): void
+  editBoard(editValues: IEditBoard): void
 }
 
 // Static methods
 export interface BoardModel extends Model<IBoard, object, IBoardMethods> {
-  createBoard(board: ICreateBoard): Promise<BoardDocumentInstance>
+  findBoardByName(
+    name?: string,
+    boardID?: string
+  ): Promise<BoardDocumentInstance | null>
 }
 
 export type BoardDocumentInstance = Document<unknown, object, IBoard> &
   Omit<
-    IBoard & {
-      _id: Types.ObjectId
-    },
-    'getColumns'
+    IBoard &
+      Required<{
+        _id: Types.ObjectId
+      }>,
+    keyof IBoardMethods
   > &
   IBoardMethods
