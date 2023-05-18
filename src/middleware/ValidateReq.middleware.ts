@@ -14,11 +14,12 @@ export type ReqValidatorFn<T> = (
  * Validate the request body with a custom error
  *
  * @param {ReqValidatorFn} validatorFn
+ * @param {boolean} required
  */
 const validateReq =
-  <T>(validatorFn: ReqValidatorFn<T>) =>
+  <T>(validatorFn: ReqValidatorFn<T>, required = true) =>
   (req: Request, res: Response, next: NextFunction) => {
-    const { error } = validatorFn(req.body)
+    const { error } = validatorFn(req.body, required)
 
     if (error) {
       const { BAD_REQUEST } = RES_CODE_MAP
