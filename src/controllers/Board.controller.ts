@@ -3,7 +3,7 @@ import { Request, Response } from 'express'
 import * as utils from '@utils'
 import { Board } from '@models'
 import { RES_CODE_MAP } from '@constants'
-import { ICreateBoard } from '@root/types'
+import { ICreateBoard, IEditBoard } from '@root/types'
 
 // Message getters
 const {
@@ -15,7 +15,7 @@ const {
 } = utils
 
 // Response Statuses
-const { NOT_FOUND, OK } = RES_CODE_MAP
+const { NOT_FOUND, OK, CONFLICT } = RES_CODE_MAP
 
 // Get a board
 export const getABoard = async (req: Request, res: Response) => {
@@ -23,11 +23,10 @@ export const getABoard = async (req: Request, res: Response) => {
   const board = await Board.findById(boardID)
 
   if (board) {
-    const boardResValue = board.columnizeBoard()
-
-    return res
-      .status(OK)
-      .send({ data: boardResValue, message: getFoundSuccessMsg('Board') })
+    return res.status(OK).send({
+      data: board.columnizeBoard(),
+      message: getFoundSuccessMsg('Board')
+    })
   }
 
   res
@@ -37,19 +36,30 @@ export const getABoard = async (req: Request, res: Response) => {
 
 // Create a board
 export const createABoard = async (req: Request, res: Response) => {
-  const board = new Board(req.body as ICreateBoard)
+  const boardReqProps = req.body as ICreateBoard
+
+  const boardName = boardReqProps.name.trim()
+  const boardWithSameName = await Board.findBoardByName(boardName)
+
+  if (boardWithSameName) {
+    return res.status(CONFLICT).send({
+      data: null,
+      message: `Conflict! ${boardName} already exists.`
+    })
+  }
+
+  const board = new Board(boardReqProps)
   await board.save()
 
-  const columnizedBoard = board.columnizeBoard()
-
-  res
-    .status(OK)
-    .send({ data: columnizedBoard, message: getCreateSuccessMsg('Board') })
+  res.status(OK).send({
+    data: board.columnizeBoard(),
+    message: getCreateSuccessMsg('Board')
+  })
 }
 
 // Get all boards
 export const getAllBoards = async (_: Request, res: Response) => {
-  const boards = await Board.find()
+  const boards = await Board.find({})
 
   res.status(OK).send({ data: boards, count: boards.length })
 }
@@ -65,27 +75,37 @@ export const deleteABoard = async (req: Request, res: Response) => {
       .send({ data: null, message: getNotFoundMsg(boardID, 'Board') })
   }
 
-  const resData = board.columnizeBoard()
-
-  res.status(OK).send({ data: resData, message: getDeleteSuccessMsg('Board') })
+  res.status(OK).send({
+    data: board.columnizeBoard(),
+    message: getDeleteSuccessMsg('Board')
+  })
 }
 
 // Update a board
 export const updateABoard = async (req: Request, res: Response) => {
   const boardID = req.params.id
+  const boardUpdateValues = req.body as IEditBoard
+
+  const boardName = boardUpdateValues.name
+  const boardWithSameName = await Board.findBoardByName(boardName, boardID)
+
+  if (boardWithSameName) {
+    return res.status(CONFLICT).send({
+      data: null,
+      message: `Conflict! ${boardName} already exists.`
+    })
+  }
+
   const board = await Board.findById(boardID)
 
   if (board) {
-    const boardUpdateValues = req.body as Partial<ICreateBoard>
-
     board.editBoard(boardUpdateValues)
     await board.save()
 
-    const resData = board.columnizeBoard()
-
-    return res
-      .status(OK)
-      .send({ data: resData, message: getUpdateSuccessMessage('Board') })
+    return res.status(OK).send({
+      data: board.columnizeBoard(),
+      message: getUpdateSuccessMessage('Board')
+    })
   }
 
   res

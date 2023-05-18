@@ -1,8 +1,12 @@
 import { Router } from 'express'
 
-import { validateObjectID, validateReq } from '@middleware'
-import { validateCreateBoard, validateUpdateBoard } from '@validators'
-import { boardControllers } from '@controllers'
+import { validateObjectID, validateReq, validateTaskID } from '@middleware'
+import { boardControllers, taskControllers } from '@controllers'
+import {
+  validateCreateBoard,
+  validateTask,
+  validateUpdateBoard
+} from '@validators'
 
 const router = Router()
 
@@ -27,6 +31,27 @@ router.put(
   '/:id',
   [validateObjectID, validateReq(validateUpdateBoard)],
   boardControllers.updateABoard
+)
+
+// Delete a task
+router.delete(
+  '/:id/tasks/:taskID',
+  [validateTaskID],
+  taskControllers.deleteABoardTask
+)
+
+// Create a task
+router.post(
+  '/:id/tasks',
+  [validateObjectID, validateReq(validateTask)],
+  taskControllers.createABoardTask
+)
+
+// Update a task
+router.put(
+  '/:id/tasks/:taskID',
+  [validateObjectID, validateReq(validateTask, false)],
+  taskControllers.updateABoardTask
 )
 
 export { router as boards }
